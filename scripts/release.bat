@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0\.."
-powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\release.ps1" -Mode cli
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\release.ps1" -Mode gui
 if errorlevel 1 (
   echo.
   echo Release build failed.

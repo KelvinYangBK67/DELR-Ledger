@@ -11,3 +11,7 @@ release/
 # Local env
 .venv/
 venv/
+
+# Local data
+2026/
+data/

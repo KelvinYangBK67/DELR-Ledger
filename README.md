@@ -1,41 +1,98 @@
-# Expenses CLI
+﻿# DELR Ledger
 
-一個簡單的記賬工具，會把資料存成 `CSV`，並自動輸出每月 `Markdown`。
+[繁體中文](README_zh.md)
 
-## 功能
+DELR Ledger is a lightweight desktop bookkeeping app (Tkinter) for personal ledger tracking, with multi-language UI and local-file-first data storage.
 
-- 新增一筆記錄
-- 依月份統計
-- 輸出格式為「日期 + 表格 + 小計 + 月總計」
+This project was completed with assistance from Codex.
 
-## 使用方式
+## Version
 
-在專案根目錄執行：
+Current version: `v0.1.0`
+
+## Highlights
+
+- Desktop GUI app built with Python + Tkinter
+- Multi-language UI: `繁體中文`, `English`, `Deutsch`
+- Ledger format: `.delr` (CSV-compatible content)
+- Open/create/export/import ledgers
+- Supported import/export formats:
+  - `.delr`
+  - `.csv`
+  - `.tsv`
+  - `.xlsx`
+  - `.json`
+  - `.xml`
+  - `.yaml` / `.yml`
+- Per-currency totals (Total / Income / Expense)
+- Table header filters (toggle on/off)
+
+## Project Structure
+
+- `delr_ledger_app.py`: Main GUI application
+- `expenses.py`: Earlier CLI utility (legacy/simple flow)
+- `scripts/`: Build and release scripts
+- `VERSION`: App version source
+- `LICENSE`: MIT License
+
+Runtime/output folders (generated):
+
+- `dist/`: Build output
+- `build/`: Intermediate build artifacts
+
+## Quick Start (Dev)
+
+1. Create and activate a virtual environment.
+2. Install dependencies.
+3. Run the GUI app.
+
+Example (PowerShell):
 
 ```powershell
-python .\expenses.py add --date 2026-04-07 --item "Dueruem" --amount 8.00 --payment "現金" --merchant "Memetello Grillhouse" --category "餐飲"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install pyinstaller openpyxl pyyaml
+python .\delr_ledger_app.py
 ```
 
-如果不帶 `--date`，會自動用今天日期。
+## Build EXE
 
-查詢月統計：
+Use your existing scripts under `scripts/` (as configured in this workspace). Typical flow:
 
 ```powershell
-python .\expenses.py summary --month 2026-04
+.\scripts\build.bat
 ```
 
-匯入既有月報（像你現在的 `2026/2026-04.md`）：
+or release flow:
 
 ```powershell
-python .\expenses.py import-md --month 2026-04 --md-path .\2026\2026-04.md
+.\scripts\release.bat
 ```
 
-## 檔案結構
+Notes:
 
-- 原始資料：`data/YYYY-MM.csv`
-- 月報表：`YYYY/YYYY-MM.md`
+- Release output is expected under `dist/`.
+- Release packaging includes versioned zip artifacts.
 
-例如 `2026-04`：
+## Data Notes
 
-- `data/2026-04.csv`
-- `2026/2026-04.md`
+- Default ledger storage can be configured in-app.
+- `.delr` files store tabular ledger rows with CSV headers:
+  - `date, amount, item, unit, payment, merchant, category`
+- `settings.json` stores app-level preferences (language, last folder/file, etc.).
+
+## Optional Dependencies
+
+Some formats require extra packages:
+
+- `XLSX` support: `openpyxl`
+- `YAML` support: `PyYAML`
+
+If missing, the app will show a runtime error message when that format is used.
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
+
+

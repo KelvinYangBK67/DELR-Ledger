@@ -1,6 +1,6 @@
 ﻿param(
     [ValidateSet('cli','gui')]
-    [string]$Mode = 'cli'
+    [string]$Mode = 'gui'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -14,25 +14,25 @@ if (-not $version) {
 
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_exe.ps1 -Mode $Mode
 
-$releaseRoot = Join-Path $projectRoot 'release'
+$releaseRoot = Join-Path $projectRoot 'dist'
 $releaseName = "DELR-Ledger-$version"
-$releaseDir = Join-Path $releaseRoot $releaseName
 $zipPath = Join-Path $releaseRoot ("$releaseName.zip")
+$tempRoot = Join-Path $projectRoot '.release_tmp'
+$tempStage = Join-Path $tempRoot $releaseName
 
-if (Test-Path $releaseDir) { Remove-Item -LiteralPath $releaseDir -Recurse -Force }
-New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+if (Test-Path $tempRoot) { Remove-Item -LiteralPath $tempRoot -Recurse -Force }
+New-Item -ItemType Directory -Path $tempStage -Force | Out-Null
 
-if ($Mode -eq 'cli') {
-    Copy-Item -LiteralPath .\dist\DELR-Ledger -Destination $releaseDir -Recurse -Force
-} else {
-    Copy-Item -LiteralPath .\dist\DELR-Ledger-GUI.exe -Destination (Join-Path $releaseDir 'DELR-Ledger-GUI.exe') -Force
-}
+$srcDir = Join-Path $projectRoot 'dist\DELR-Ledger'
+robocopy $srcDir (Join-Path $tempStage 'DELR-Ledger') /E /R:5 /W:2 /NFL /NDL /NJH /NJS /NC /NS | Out-Null
+$rc = $LASTEXITCODE
+if ($rc -ge 8) { throw "robocopy failed with exit code $rc" }
 
-Copy-Item -LiteralPath .\LICENSE -Destination (Join-Path $releaseDir 'LICENSE') -Force
-Copy-Item -LiteralPath .\VERSION -Destination (Join-Path $releaseDir 'VERSION') -Force
+Copy-Item -LiteralPath .\LICENSE -Destination (Join-Path $tempStage 'LICENSE') -Force
+Copy-Item -LiteralPath .\VERSION -Destination (Join-Path $tempStage 'VERSION') -Force
 
 if (Test-Path $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
-Compress-Archive -Path (Join-Path $releaseDir '*') -DestinationPath $zipPath -CompressionLevel Optimal
+Compress-Archive -Path (Join-Path $tempStage '*') -DestinationPath $zipPath -CompressionLevel Optimal
 
-Write-Host "Release folder: $releaseDir"
+Remove-Item -LiteralPath $tempRoot -Recurse -Force
 Write-Host "Release zip: $zipPath"

@@ -1,6 +1,6 @@
 ﻿param(
     [ValidateSet('cli','gui')]
-    [string]$Mode = 'cli',
+    [string]$Mode = 'gui',
     [switch]$InstallPyInstaller
 )
 
@@ -15,8 +15,8 @@ if ($InstallPyInstaller) {
 }
 
 if ($Mode -eq 'gui') {
-    python -m PyInstaller --noconfirm --clean --onefile --windowed --name "DELR-Ledger-GUI" .\delr_ledger_app.py
-    Write-Host "Build complete: dist\\DELR-Ledger-GUI.exe"
+    python -m PyInstaller --noconfirm --clean --windowed --name "DELR-Ledger" .\delr_ledger_app.py
+    Write-Host "Build complete: dist\\DELR-Ledger\\DELR-Ledger.exe"
 }
 else {
     python -m PyInstaller --noconfirm --clean --name "DELR-Ledger" .\expenses.py
