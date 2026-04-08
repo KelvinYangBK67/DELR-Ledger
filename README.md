@@ -16,7 +16,8 @@ Current version: `v0.1.0`
 - Multi-language UI: `繁體中文`, `English`, `Deutsch`
 - Ledger format: `.delr` (CSV-compatible content)
 - Open/create/export/import ledgers
-- Supported import/export formats:
+- Clipboard import with smart field recognition
+- Supported ledger import/export formats:
   - `.delr`
   - `.csv`
   - `.tsv`
@@ -24,8 +25,12 @@ Current version: `v0.1.0`
   - `.json`
   - `.xml`
   - `.yaml` / `.yml`
+- Document export based on the current table view:
+  - `.md`
+  - `.docx`
+  - `.pdf`
 - Per-currency totals (Total / Income / Expense)
-- Table header filters (toggle on/off)
+- Table header sorting and filters
 
 ## Project Structure
 
@@ -52,7 +57,7 @@ Example (PowerShell):
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install pyinstaller openpyxl pyyaml
+python -m pip install pyinstaller openpyxl pyyaml python-docx reportlab
 python .\delr_ledger_app.py
 ```
 
@@ -88,6 +93,8 @@ Some formats require extra packages:
 
 - `XLSX` support: `openpyxl`
 - `YAML` support: `PyYAML`
+- `DOCX` document export: `python-docx`
+- `PDF` document export: `reportlab`
 
 If missing, the app will show a runtime error message when that format is used.
 
