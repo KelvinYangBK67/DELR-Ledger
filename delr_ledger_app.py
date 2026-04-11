@@ -1008,7 +1008,7 @@ class DelrLedgerApp:
         for idx, e in rows:
             u = (e.unit or "EUR").upper()
             a = abs(e.amount)
-            total[u] = total.get(u, 0.0) + a
+            total[u] = total.get(u, 0.0) + e.amount
             if e.amount < 0:
                 inc[u] = inc.get(u, 0.0) + a
             else:

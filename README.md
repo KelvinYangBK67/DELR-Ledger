@@ -1,4 +1,4 @@
-﻿# DELR Ledger
+# DELR Ledger
 
 [繁體中文](README_zh.md)
 
@@ -8,7 +8,7 @@ This project was completed with assistance from Codex.
 
 ## Version
 
-Current version: `v0.1.0`
+Current version: `v0.1.1`
 
 ## Highlights
 
