@@ -51,7 +51,7 @@ except Exception:
     pdfmetrics = None
     TTFont = None
 
-CSV_HEADERS = ["date", "amount", "item", "unit", "payment", "merchant", "category"]
+CSV_HEADERS = ["date", "amount", "item", "unit", "payment", "merchant", "category", "excluded"]
 ISO_CURRENCIES = sorted({
     "AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF",
     "BMD","BND","BOB","BRL","BSD","BTN","BWP","BYN","BZD","CAD","CDF","CHF","CLP","CNY","COP","CRC",
@@ -70,7 +70,7 @@ I18N = {
     "en": {
         "app_title": "DELR Ledger", "language": "Language", "data_folder": "Data Folder", "choose_folder": "Choose Folder", "current_file": "Current Ledger",
         "new": "New (.delr)", "open": "Open (.delr)", "export": "Export", "import": "Import", "type": "Type", "income": "Income", "expense": "Expense",
-        "date": "Date", "item": "Item", "category": "Category", "amount": "Amount", "unit": "Unit", "payment": "Payment", "merchant": "Merchant",
+        "date": "Date", "item": "Item", "category": "Category", "amount": "Amount", "unit": "Unit", "payment": "Payment", "merchant": "Merchant", "excluded": "Do not count",
         "add": "Add", "clear": "Clear", "edit": "Edit", "delete": "Delete", "entries": "Ledger Entries", "total": "Total", "income_total": "Income", "expense_total": "Expense",
         "filter": "Filter", "from": "From", "to": "To", "invalid_item": "Item cannot be empty.", "invalid_amount": "Amount must be a number.",
         "invalid_date": "Invalid date.", "no_select": "Please select at least one row.", "apply": "Apply", "cancel": "Cancel", "contains": "Contains", "show_all": "All", "show_year": "By Year", "show_month": "By Month", "show_day": "By Day", "prev": "Prev", "next": "Next", "paste_import": "Import from Clipboard", "parse_and_import": "Parse and Import", "import_help": "One record per line. Supported delimiters: Tab, ;, |. The app will detect date/type/amount/unit first, then assign text fields.", "import_date_rule": "Date format: YYYY-MM-DD, YYYY/MM/DD, or YYYY.MM.DD.", "import_summary": "Imported: {ok}, Failed: {bad}", "import_errors": "Import Errors", "choose_field_role": "Choose field role", "as_payment": "As Payment", "as_merchant": "As Merchant"
@@ -78,7 +78,7 @@ I18N = {
     "zh-TW": {
         "app_title": "DELR 記賬本", "language": "語言", "data_folder": "資料夾", "choose_folder": "選擇資料夾", "current_file": "目前賬本",
         "new": "新建（.delr）", "open": "開啟（.delr）", "export": "導出", "import": "導入", "type": "類型", "income": "收入", "expense": "支出",
-        "date": "日期", "item": "項目", "category": "分類", "amount": "金額", "unit": "單位", "payment": "支付方式", "merchant": "商家",
+        "date": "日期", "item": "項目", "category": "分類", "amount": "金額", "unit": "單位", "payment": "支付方式", "merchant": "商家", "excluded": "不記入收支",
         "add": "新增", "clear": "清空", "edit": "修改", "delete": "刪除", "entries": "賬本條目", "total": "總計", "income_total": "收入", "expense_total": "支出",
         "filter": "篩選", "from": "起", "to": "迄", "invalid_item": "項目不可為空。", "invalid_amount": "金額必須是數字。",
         "invalid_date": "日期無效。", "no_select": "請至少選擇一行。", "apply": "套用", "cancel": "取消", "contains": "包含", "show_all": "全部", "show_year": "按年顯示", "show_month": "按月顯示", "show_day": "按日顯示", "prev": "上一頁", "next": "下一頁"
@@ -86,7 +86,7 @@ I18N = {
     "de": {
         "app_title": "DELR Kassenbuch", "language": "Sprache", "data_folder": "Datenordner", "choose_folder": "Ordner wählen", "current_file": "Aktuelles Ledger",
         "new": "Neu (.delr)", "open": "Öffnen (.delr)", "export": "Exportieren", "import": "Importieren", "type": "Typ", "income": "Einnahme", "expense": "Ausgabe",
-        "date": "Datum", "item": "Artikel", "category": "Kategorie", "amount": "Betrag", "unit": "Einheit", "payment": "Zahlung", "merchant": "Händler",
+        "date": "Datum", "item": "Artikel", "category": "Kategorie", "amount": "Betrag", "unit": "Einheit", "payment": "Zahlung", "merchant": "Händler", "excluded": "Nicht mitzählen",
         "add": "Hinzufügen", "clear": "Leeren", "edit": "Bearbeiten", "delete": "Löschen", "entries": "Ledger-Einträge", "total": "Summe", "income_total": "Einnahmen", "expense_total": "Ausgaben",
         "filter": "Filter", "from": "Von", "to": "Bis", "invalid_item": "Artikel darf nicht leer sein.", "invalid_amount": "Betrag muss eine Zahl sein.",
         "invalid_date": "Ungültiges Datum.", "no_select": "Bitte mindestens eine Zeile wählen.", "apply": "Anwenden", "cancel": "Abbrechen", "contains": "Enthält", "show_all": "Alle", "show_year": "Nach Jahr", "show_month": "Nach Monat", "show_day": "Nach Tag", "prev": "Zurück", "next": "Weiter"
@@ -118,6 +118,7 @@ class Entry:
     payment: str
     merchant: str
     category: str
+    excluded: bool = False
 
 
 class DelrLedgerApp:
@@ -144,6 +145,7 @@ class DelrLedgerApp:
         self.unit_var = tk.StringVar(value="")
         self.payment_var = tk.StringVar(value="")
         self.merchant_var = tk.StringVar()
+        self.excluded_var = tk.BooleanVar(value=False)
 
         self.entries: list[Entry] = []
         self.current_file: Path | None = None
@@ -378,6 +380,9 @@ class DelrLedgerApp:
         self.merchant_combo = ttk.Combobox(r2, textvariable=self.merchant_var, values=[], width=22)
         self.merchant_combo.pack(side="left", padx=(4, 8))
 
+        self.excluded_chk = ttk.Checkbutton(r2, variable=self.excluded_var)
+        self.excluded_chk.pack(side="left", padx=(0, 8))
+
         ttk.Frame(r2).pack(side="left", fill="x", expand=True)
         self.add_btn = ttk.Button(r2, command=self.add_entry)
         self.add_btn.pack(side="right")
@@ -405,9 +410,9 @@ class DelrLedgerApp:
 
         tw = ttk.Frame(table_box)
         tw.pack(fill="both", expand=True, padx=8, pady=(0, 8))
-        cols = ("date", "type", "item", "amount", "unit", "payment", "merchant", "category")
+        cols = ("date", "type", "item", "amount", "unit", "payment", "merchant", "category", "excluded")
         self.tree = ttk.Treeview(tw, columns=cols, show="headings", selectmode="extended", height=8)
-        widths = {"date": 120, "type": 90, "item": 220, "amount": 100, "unit": 70, "payment": 130, "merchant": 180, "category": 130}
+        widths = {"date": 120, "type": 90, "item": 220, "amount": 100, "unit": 70, "payment": 130, "merchant": 180, "category": 130, "excluded": 120}
         for c in cols:
             self.tree.column(c, width=widths[c], anchor=("e" if c == "amount" else "w"))
             self.tree.heading(c, text=c, command=lambda col=c: self._on_header_left_click(col))
@@ -530,7 +535,7 @@ class DelrLedgerApp:
     def _column_from_tree_ident(self, ident: str) -> str | None:
         if not ident or not ident.startswith("#"):
             return None
-        cols = ("date", "type", "item", "amount", "unit", "payment", "merchant", "category")
+        cols = ("date", "type", "item", "amount", "unit", "payment", "merchant", "category", "excluded")
         try:
             idx = int(ident[1:]) - 1
         except ValueError:
@@ -558,6 +563,8 @@ class DelrLedgerApp:
             self._toggle_or_apply_filter(col, lambda c=col: self._open_multi_filter(c))
         elif col in {"amount", "unit"}:
             self._toggle_or_apply_filter("amount", self._open_amount_unit_filter)
+        elif col == "excluded":
+            self._toggle_or_apply_filter(col, lambda: self._apply_excluded_filter(col))
         else:
             self._toggle_or_apply_filter(col, lambda: self._open_text_filter(col))
 
@@ -658,6 +665,10 @@ class DelrLedgerApp:
             self.header_filters["unit"] = unit; self.header_range["amount"] = (lo_var.get().strip(), hi_var.get().strip()); w.destroy(); self.refresh_table()
         ttk.Button(btn, text=self.tr("apply"), command=apply).pack(side="right"); ttk.Button(btn, text=self.tr("cancel"), command=w.destroy).pack(side="right", padx=(0, 6)); self._finalize_filter_window(w)
 
+    def _apply_excluded_filter(self, col: str) -> None:
+        self.header_filters[col] = "1"
+        self.refresh_table()
+
     def _filtered(self) -> list[tuple[int, Entry]]:
         out: list[tuple[int, Entry]] = []
         for i, e in enumerate(self.entries):
@@ -675,6 +686,8 @@ class DelrLedgerApp:
         if self.header_filters.get("item") and self.header_filters["item"].lower() not in e.item.lower():
             return False
         if self.header_filters.get("unit") and self.header_filters["unit"].upper() != e.unit.upper():
+            return False
+        if self.header_filters.get("excluded") == "1" and not e.excluded:
             return False
         if "payment" in self.header_multi and e.payment not in self.header_multi["payment"]:
             return False
@@ -711,7 +724,7 @@ class DelrLedgerApp:
         return (col in self.header_filters) or (col in self.header_range) or (col in self.header_multi)
 
     def update_header_state(self) -> None:
-        for col, key in [("date", "date"), ("type", "type"), ("item", "item"), ("amount", "amount"), ("unit", "unit"), ("payment", "payment"), ("merchant", "merchant"), ("category", "category")]:
+        for col, key in [("date", "date"), ("type", "type"), ("item", "item"), ("amount", "amount"), ("unit", "unit"), ("payment", "payment"), ("merchant", "merchant"), ("category", "category"), ("excluded", "excluded")]:
             label = self.tr(key)
             if self._is_filter_active_for_column(col):
                 label = f"{label} [F]"
@@ -735,7 +748,7 @@ class DelrLedgerApp:
         self.doc_current_page_only_chk.config(text=self.tr("export_current_page_only"))
         self.form_frame.config(text=self.tr("entries"))
         self.type_label.config(text=self.tr("type")); self.date_label.config(text=self.tr("date")); self.item_label.config(text=self.tr("item")); self.category_label.config(text=self.tr("category"))
-        self.amount_label.config(text=self.tr("amount")); self.unit_label.config(text=self.tr("unit")); self.payment_label.config(text=self.tr("payment")); self.merchant_label.config(text=self.tr("merchant"))
+        self.amount_label.config(text=self.tr("amount")); self.unit_label.config(text=self.tr("unit")); self.payment_label.config(text=self.tr("payment")); self.merchant_label.config(text=self.tr("merchant")); self.excluded_chk.config(text=self.tr("excluded"))
         self.view_all_rb.config(text=self.tr("show_all"))
         self.view_year_rb.config(text=self.tr("show_year"))
         self.view_month_rb.config(text=self.tr("show_month"))
@@ -833,12 +846,17 @@ class DelrLedgerApp:
                 amount = float(str(r.get("amount", "0") or "0"))
             except ValueError:
                 amount = 0.0
-            out.append(Entry(date=str(r.get("date", "1970-01-01") or "1970-01-01"), amount=amount, item=str(r.get("item", "") or ""), unit=str(r.get("unit", "EUR") or "EUR").upper(), payment=str(r.get("payment", "") or ""), merchant=str(r.get("merchant", "") or ""), category=str(r.get("category", "") or "")))
+            excluded = str(r.get("excluded", "") or "").strip().casefold() in {"1", "true", "yes", "y", "on"}
+            out.append(Entry(date=str(r.get("date", "1970-01-01") or "1970-01-01"), amount=amount, item=str(r.get("item", "") or ""), unit=str(r.get("unit", "EUR") or "EUR").upper(), payment=str(r.get("payment", "") or ""), merchant=str(r.get("merchant", "") or ""), category=str(r.get("category", "") or ""), excluded=excluded))
         return out
 
     def _sorted(self, rows: list[tuple[int, Entry]]) -> list[tuple[int, Entry]]:
         if self.sort_column is None or self.sort_direction is None:
-            return rows
+            merchant_order: dict[tuple[str, str], int] = {}
+            for idx, e in enumerate(self.entries):
+                key = (e.date, (e.merchant or "").casefold())
+                merchant_order.setdefault(key, idx)
+            return sorted(rows, key=lambda pair: (pair[1].date, merchant_order.get((pair[1].date, (pair[1].merchant or "").casefold()), pair[0]), pair[0]))
 
         reverse = self.sort_direction == "desc"
 
@@ -864,6 +882,8 @@ class DelrLedgerApp:
                 return (e.merchant or "").lower()
             if self.sort_column == "category":
                 return (e.category or "").lower()
+            if self.sort_column == "excluded":
+                return 1 if e.excluded else 0
             return ""
 
         return sorted(rows, key=key_func, reverse=reverse)
@@ -882,11 +902,12 @@ class DelrLedgerApp:
         type_var = tk.StringVar(value=self.tr("income") if e.amount < 0 else self.tr("expense"))
         date_var = tk.StringVar(value=self.fmt_ui_date(e.date))
         item_var = tk.StringVar(value=e.item)
-        amount_var = tk.StringVar(value=f"{e.amount:.2f}")
+        amount_var = tk.StringVar(value=f"{abs(e.amount):.2f}")
         unit_var = tk.StringVar(value=(e.unit or ""))
         payment_var = tk.StringVar(value=(e.payment if e.payment != "-" else ""))
         merchant_var = tk.StringVar(value=(e.merchant if e.merchant != "-" else ""))
         category_var = tk.StringVar(value=(e.category if e.category != "-" else ""))
+        excluded_var = tk.BooleanVar(value=e.excluded)
 
         r1 = ttk.Frame(w); r1.pack(fill="x", padx=10, pady=(12, 6))
         ttk.Label(r1, text=f"{self.tr('type')}: ").pack(side="left")
@@ -911,7 +932,8 @@ class DelrLedgerApp:
         ttk.Label(r3, text=f"{self.tr('merchant')}: ").pack(side="left")
         ttk.Entry(r3, textvariable=merchant_var, width=22).pack(side="left", padx=(4, 10))
         ttk.Label(r3, text=f"{self.tr('category')}: ").pack(side="left")
-        ttk.Entry(r3, textvariable=category_var, width=18).pack(side="left", padx=(4, 0))
+        ttk.Entry(r3, textvariable=category_var, width=18).pack(side="left", padx=(4, 10))
+        ttk.Checkbutton(r3, text=self.tr("excluded"), variable=excluded_var).pack(side="left")
 
         btn = ttk.Frame(w); btn.pack(side="bottom", fill="x", padx=10, pady=10)
 
@@ -929,6 +951,7 @@ class DelrLedgerApp:
             except ValueError:
                 messagebox.showerror(self.tr("app_title"), self.tr("invalid_amount"))
                 return
+            raw = abs(raw)
 
             unit = unit_var.get().strip().upper()
             if unit not in self.unit_values:
@@ -946,6 +969,7 @@ class DelrLedgerApp:
                 payment=(payment_var.get().strip() or "-"),
                 merchant=(merchant_var.get().strip() or "-"),
                 category=(category_var.get().strip() or "-"),
+                excluded=excluded_var.get(),
             )
             self._rebuild_options()
             self.write_current_delr()
@@ -1008,13 +1032,15 @@ class DelrLedgerApp:
         for idx, e in rows:
             u = (e.unit or "EUR").upper()
             a = abs(e.amount)
-            total[u] = total.get(u, 0.0) + e.amount
-            if e.amount < 0:
-                inc[u] = inc.get(u, 0.0) + a
-            else:
-                exp[u] = exp.get(u, 0.0) + a
+            if not e.excluded:
+                total[u] = total.get(u, 0.0) + e.amount
+                if e.amount < 0:
+                    inc[u] = inc.get(u, 0.0) + a
+                else:
+                    exp[u] = exp.get(u, 0.0) + a
             display_type = self.tr("income") if e.amount < 0 else self.tr("expense")
-            self.tree.insert("", "end", iid=str(idx), values=(self.fmt_ui_date(e.date), display_type, e.item, self._fmt_number_ui(a), u, e.payment, e.merchant, e.category))
+            excluded = self.tr("excluded") if e.excluded else ""
+            self.tree.insert("", "end", iid=str(idx), values=(self.fmt_ui_date(e.date), display_type, e.item, self._fmt_number_ui(a), u, e.payment, e.merchant, e.category, excluded))
 
         self.total_label.config(text=f"{self.tr('total')}: {self._fmt(total)}")
         self.income_label.config(text=f"{self.tr('income_total')}: {self._fmt(inc)}")
@@ -1117,6 +1143,7 @@ class DelrLedgerApp:
                     "payment": e.payment,
                     "merchant": e.merchant,
                     "category": e.category,
+                    "excluded": "1" if e.excluded else "0",
                 })
         self.file_var.set(str(self.current_file))
 
@@ -1189,6 +1216,7 @@ class DelrLedgerApp:
             "payment": e.payment,
             "merchant": e.merchant,
             "category": e.category,
+            "excluded": "1" if e.excluded else "0",
         } for e in self.entries]
 
         if ext in {".delr", ".csv"}:
@@ -1251,6 +1279,7 @@ class DelrLedgerApp:
         self.category_var.set("")
         self.merchant_var.set("")
         self.payment_var.set("")
+        self.excluded_var.set(False)
 
     def add_entry(self) -> None:
         item = self.item_var.get().strip()
@@ -1268,6 +1297,7 @@ class DelrLedgerApp:
         except ValueError:
             messagebox.showerror(self.tr("app_title"), self.tr("invalid_amount"))
             return
+        raw = abs(raw)
 
         unit = self.unit_var.get().strip().upper()
         if unit not in self.unit_values:
@@ -1289,6 +1319,7 @@ class DelrLedgerApp:
             payment=payment,
             merchant=(self.merchant_var.get().strip() or "-"),
             category=(self.category_var.get().strip() or "-"),
+            excluded=self.excluded_var.get(),
         ))
         self._rebuild_options()
         self.write_current_delr()
@@ -1700,8 +1731,9 @@ class DelrLedgerApp:
             lines.append("| ---- | ----: | ------- | -------- | -------- |")
             sub = 0.0
             for e in items:
-                sub += e.amount
-                grand += e.amount
+                if not e.excluded:
+                    sub += e.amount
+                    grand += e.amount
                 lines.append(f"| {e.item} | {self._format_document_amount(e.amount, e.unit.upper())} | {e.payment} | {e.merchant} | {e.category} |")
             lines.append("")
             unit = items[0].unit.upper() if items else "EUR"
@@ -1733,8 +1765,9 @@ class DelrLedgerApp:
             hdr[4].text = h_category
             sub = 0.0
             for e in items:
-                sub += e.amount
-                grand += e.amount
+                if not e.excluded:
+                    sub += e.amount
+                    grand += e.amount
                 row = table.add_row().cells
                 row[0].text = e.item
                 row[1].text = self._format_document_amount(e.amount, e.unit.upper())
@@ -1835,8 +1868,9 @@ class DelrLedgerApp:
             ]]
             sub = 0.0
             for e in items:
-                sub += e.amount
-                grand += e.amount
+                if not e.excluded:
+                    sub += e.amount
+                    grand += e.amount
                 data.append([
                     self._pdf_paragraph(e.item, styles["Normal"], font_name),
                     self._pdf_paragraph(self._format_document_amount(e.amount, e.unit.upper()), styles["Normal"], font_name),

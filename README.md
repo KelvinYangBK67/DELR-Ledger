@@ -29,6 +29,8 @@ Current version: `v0.1.1`
   - `.md`
   - `.docx`
   - `.pdf`
+- Default entry order is by date, then by merchant groups in the order merchants first appear in the ledger data for that date
+- Optional "Do not count" flag for transfers, cash withdrawals, or other rows that should remain visible but not affect totals
 - Per-currency totals (Total / Income / Expense)
 - Table header sorting and filters
 
@@ -84,7 +86,8 @@ Notes:
 
 - Default ledger storage can be configured in-app.
 - `.delr` files store tabular ledger rows with CSV headers:
-  - `date, amount, item, unit, payment, merchant, category`
+  - `date, amount, item, unit, payment, merchant, category, excluded`
+- The `excluded` field is optional for older files. Values such as `1`, `true`, `yes`, `y`, or `on` mark a row as not counted in totals.
 - `settings.json` stores app-level preferences (language, last folder/file, etc.).
 
 ## Optional Dependencies
