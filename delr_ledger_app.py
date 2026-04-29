@@ -73,7 +73,7 @@ I18N = {
         "date": "Date", "item": "Item", "category": "Category", "amount": "Amount", "unit": "Unit", "payment": "Payment", "merchant": "Merchant", "excluded": "Do not count",
         "add": "Add", "clear": "Clear", "edit": "Edit", "delete": "Delete", "entries": "Ledger Entries", "total": "Total", "income_total": "Income", "expense_total": "Expense",
         "filter": "Filter", "from": "From", "to": "To", "invalid_item": "Item cannot be empty.", "invalid_amount": "Amount must be a number.",
-        "invalid_date": "Invalid date.", "no_select": "Please select at least one row.", "apply": "Apply", "cancel": "Cancel", "contains": "Contains", "show_all": "All", "show_year": "By Year", "show_month": "By Month", "show_day": "By Day", "prev": "Prev", "next": "Next", "paste_import": "Import from Clipboard", "parse_and_import": "Parse and Import", "import_help": "One record per line. Supported delimiters: Tab, ;, |. The app will detect date/type/amount/unit first, then assign text fields.", "import_date_rule": "Date format: YYYY-MM-DD, YYYY/MM/DD, or YYYY.MM.DD.", "import_summary": "Imported: {ok}, Failed: {bad}", "import_errors": "Import Errors", "choose_field_role": "Choose field role", "as_payment": "As Payment", "as_merchant": "As Merchant"
+        "invalid_date": "Invalid date.", "no_select": "Please select at least one row.", "apply": "Apply", "cancel": "Cancel", "contains": "Contains", "show_all": "All", "show_year": "By Year", "show_month": "By Month", "show_day": "By Day", "first": "First", "prev": "Prev", "next": "Next", "last": "Last", "jump_prefix": "Go to page", "jump_suffix": "", "jump_go": "Go", "invalid_page": "Page not found.", "paste_import": "Import from Clipboard", "parse_and_import": "Parse and Import", "import_help": "One record per line. Supported delimiters: Tab, ;, |. The app will detect date/type/amount/unit first, then assign text fields.", "import_date_rule": "Date format: YYYY-MM-DD, YYYY/MM/DD, or YYYY.MM.DD.", "import_summary": "Imported: {ok}, Failed: {bad}", "import_errors": "Import Errors", "choose_field_role": "Choose field role", "as_payment": "As Payment", "as_merchant": "As Merchant"
     },
     "zh-TW": {
         "app_title": "DELR 記賬本", "language": "語言", "data_folder": "資料夾", "choose_folder": "選擇資料夾", "current_file": "目前賬本",
@@ -81,7 +81,7 @@ I18N = {
         "date": "日期", "item": "項目", "category": "分類", "amount": "金額", "unit": "單位", "payment": "支付方式", "merchant": "商家", "excluded": "不記入收支",
         "add": "新增", "clear": "清空", "edit": "修改", "delete": "刪除", "entries": "賬本條目", "total": "總計", "income_total": "收入", "expense_total": "支出",
         "filter": "篩選", "from": "起", "to": "迄", "invalid_item": "項目不可為空。", "invalid_amount": "金額必須是數字。",
-        "invalid_date": "日期無效。", "no_select": "請至少選擇一行。", "apply": "套用", "cancel": "取消", "contains": "包含", "show_all": "全部", "show_year": "按年顯示", "show_month": "按月顯示", "show_day": "按日顯示", "prev": "上一頁", "next": "下一頁"
+        "invalid_date": "日期無效。", "no_select": "請至少選擇一行。", "apply": "套用", "cancel": "取消", "contains": "包含", "show_all": "全部", "show_year": "按年顯示", "show_month": "按月顯示", "show_day": "按日顯示", "first": "首頁", "prev": "上一頁", "next": "下一頁", "last": "尾頁", "jump_prefix": "跳轉至第", "jump_suffix": "頁", "jump_go": "前往", "invalid_page": "找不到該頁。"
     },
     "de": {
         "app_title": "DELR Kassenbuch", "language": "Sprache", "data_folder": "Datenordner", "choose_folder": "Ordner wählen", "current_file": "Aktuelles Ledger",
@@ -89,7 +89,7 @@ I18N = {
         "date": "Datum", "item": "Artikel", "category": "Kategorie", "amount": "Betrag", "unit": "Einheit", "payment": "Zahlung", "merchant": "Händler", "excluded": "Nicht mitzählen",
         "add": "Hinzufügen", "clear": "Leeren", "edit": "Bearbeiten", "delete": "Löschen", "entries": "Ledger-Einträge", "total": "Summe", "income_total": "Einnahmen", "expense_total": "Ausgaben",
         "filter": "Filter", "from": "Von", "to": "Bis", "invalid_item": "Artikel darf nicht leer sein.", "invalid_amount": "Betrag muss eine Zahl sein.",
-        "invalid_date": "Ungültiges Datum.", "no_select": "Bitte mindestens eine Zeile wählen.", "apply": "Anwenden", "cancel": "Abbrechen", "contains": "Enthält", "show_all": "Alle", "show_year": "Nach Jahr", "show_month": "Nach Monat", "show_day": "Nach Tag", "prev": "Zurück", "next": "Weiter"
+        "invalid_date": "Ungültiges Datum.", "no_select": "Bitte mindestens eine Zeile wählen.", "apply": "Anwenden", "cancel": "Abbrechen", "contains": "Enthält", "show_all": "Alle", "show_year": "Nach Jahr", "show_month": "Nach Monat", "show_day": "Nach Tag", "first": "Erste", "prev": "Zurück", "next": "Weiter", "last": "Letzte", "jump_prefix": "Zu Seite", "jump_suffix": "", "jump_go": "Gehen", "invalid_page": "Seite nicht gefunden."
     },
 }
 
@@ -164,6 +164,7 @@ class DelrLedgerApp:
         self.view_mode_var = tk.StringVar(value="all")
         self.page_keys: list[str] = []
         self.page_index = 0
+        self.page_jump_var = tk.StringVar()
         self.doc_current_page_only_var = tk.BooleanVar(value=False)
 
         self._build_ui()
@@ -199,6 +200,12 @@ class DelrLedgerApp:
     "choose_field_role": "Choose field role",
     "as_payment": "As Payment",
     "as_merchant": "As Merchant",
+    "first": "First",
+    "last": "Last",
+    "jump_prefix": "Go to page",
+    "jump_suffix": "",
+    "jump_go": "Go",
+    "invalid_page": "Page not found.",
     "export_doc": "Export as Document",
     "export_current_page_only": "Current page only",
     "doc_title": "Expenses",
@@ -224,6 +231,12 @@ class DelrLedgerApp:
     "choose_field_role": "選擇欄位角色",
     "as_payment": "支付方式",
     "as_merchant": "商家",
+    "first": "首頁",
+    "last": "尾頁",
+    "jump_prefix": "跳轉至第",
+    "jump_suffix": "頁",
+    "jump_go": "前往",
+    "invalid_page": "找不到該頁。",
     "export_doc": "導出爲文檔",
     "export_current_page_only": "僅導出當前頁",
     "doc_title": "支出記錄",
@@ -249,6 +262,12 @@ class DelrLedgerApp:
     "choose_field_role": "Feldrolle wählen",
     "as_payment": "Zahlungsart",
     "as_merchant": "Händler",
+    "first": "Erste",
+    "last": "Letzte",
+    "jump_prefix": "Zu Seite",
+    "jump_suffix": "",
+    "jump_go": "Gehen",
+    "invalid_page": "Seite nicht gefunden.",
     "export_doc": "Als Dokument exportieren",
     "export_current_page_only": "Nur aktuelle Seite",
     "doc_title": "Ausgaben",
@@ -396,12 +415,25 @@ class DelrLedgerApp:
         self.table_box = table_box
         hdr = ttk.Frame(table_box)
         hdr.pack(fill="x", padx=8, pady=(6, 4))
+        self.page_first_btn = ttk.Button(hdr, command=lambda: self._set_page(0))
+        self.page_first_btn.pack(side="left")
         self.page_prev_btn = ttk.Button(hdr, command=lambda: self._change_page(-1))
-        self.page_prev_btn.pack(side="left")
+        self.page_prev_btn.pack(side="left", padx=(6, 0))
         self.page_next_btn = ttk.Button(hdr, command=lambda: self._change_page(1))
         self.page_next_btn.pack(side="left", padx=(6, 0))
+        self.page_last_btn = ttk.Button(hdr, command=lambda: self._set_page(len(self.page_keys) - 1))
+        self.page_last_btn.pack(side="left", padx=(6, 0))
         self.page_info_label = ttk.Label(hdr, width=18)
         self.page_info_label.pack(side="left", padx=(8, 6))
+        self.page_jump_label = ttk.Label(hdr)
+        self.page_jump_label.pack(side="left", padx=(2, 4))
+        self.page_jump_entry = ttk.Entry(hdr, textvariable=self.page_jump_var, width=6)
+        self.page_jump_entry.pack(side="left")
+        self.page_jump_entry.bind("<Return>", lambda _event: self._jump_to_page())
+        self.page_jump_suffix_label = ttk.Label(hdr)
+        self.page_jump_suffix_label.pack(side="left", padx=(4, 4))
+        self.page_jump_btn = ttk.Button(hdr, command=self._jump_to_page)
+        self.page_jump_btn.pack(side="left", padx=(4, 0))
         ttk.Frame(hdr).pack(side="left", fill="x", expand=True)
         self.del_btn = ttk.Button(hdr, command=self.delete_selected, state="disabled")
         self.del_btn.pack(side="right")
@@ -516,10 +548,36 @@ class DelrLedgerApp:
     def _change_page(self, delta: int) -> None:
         if not self.page_keys:
             return
-        new_idx = self.page_index + delta
-        if 0 <= new_idx < len(self.page_keys):
+        self._set_page(self.page_index + delta)
+
+    def _set_page(self, index: int) -> None:
+        if not self.page_keys:
+            return
+        new_idx = min(max(index, 0), len(self.page_keys) - 1)
+        if new_idx != self.page_index:
             self.page_index = new_idx
             self.refresh_table()
+
+    def _jump_to_page(self) -> None:
+        if not self.page_keys:
+            return
+        raw = self.page_jump_var.get().strip()
+        if not raw:
+            return
+
+        target_idx: int | None = None
+        if raw.isdigit():
+            n = int(raw)
+            if 1 <= n <= len(self.page_keys):
+                target_idx = n - 1
+        if target_idx is None and raw in self.page_keys:
+            target_idx = self.page_keys.index(raw)
+
+        if target_idx is None:
+            messagebox.showerror(self.tr("app_title"), self.tr("invalid_page"))
+            return
+        self.page_index = target_idx
+        self.refresh_table()
 
     def _on_header_left_click(self, col: str) -> None:
         if self.sort_column != col:
@@ -571,13 +629,23 @@ class DelrLedgerApp:
     def _update_paging_controls(self) -> None:
         mode = self.view_mode_var.get()
         if mode == "all" or not self.page_keys:
+            self.page_first_btn.config(state="disabled")
             self.page_prev_btn.config(state="disabled")
             self.page_next_btn.config(state="disabled")
+            self.page_last_btn.config(state="disabled")
+            self.page_jump_entry.config(state="disabled")
+            self.page_jump_suffix_label.config(state="disabled")
+            self.page_jump_btn.config(state="disabled")
             self.page_info_label.config(text="")
             return
         current = self.page_keys[self.page_index]
+        self.page_first_btn.config(state=("normal" if self.page_index > 0 else "disabled"))
         self.page_prev_btn.config(state=("normal" if self.page_index > 0 else "disabled"))
         self.page_next_btn.config(state=("normal" if self.page_index < len(self.page_keys) - 1 else "disabled"))
+        self.page_last_btn.config(state=("normal" if self.page_index < len(self.page_keys) - 1 else "disabled"))
+        self.page_jump_entry.config(state="normal")
+        self.page_jump_suffix_label.config(state="normal")
+        self.page_jump_btn.config(state="normal")
         self.page_info_label.config(text=f"{self.page_index + 1}/{len(self.page_keys)}  {current}")
 
 
@@ -753,8 +821,13 @@ class DelrLedgerApp:
         self.view_year_rb.config(text=self.tr("show_year"))
         self.view_month_rb.config(text=self.tr("show_month"))
         self.view_day_rb.config(text=self.tr("show_day"))
+        self.page_first_btn.config(text=self.tr("first"))
         self.page_prev_btn.config(text=self.tr("prev"))
         self.page_next_btn.config(text=self.tr("next"))
+        self.page_last_btn.config(text=self.tr("last"))
+        self.page_jump_label.config(text=self.tr("jump_prefix"))
+        self.page_jump_suffix_label.config(text=self.tr("jump_suffix"))
+        self.page_jump_btn.config(text=self.tr("jump_go"))
         self.add_btn.config(text=self.tr("add")); self.clear_btn.config(text=self.tr("clear")); self.paste_import_btn.config(text=self.tr("paste_import")); self.edit_btn.config(text=self.tr("edit")); self.del_btn.config(text=self.tr("delete"))
         current_type = self._type_from_ui(self.type_var.get())
         self.type_combo["values"] = [self.tr("expense"), self.tr("income")]
@@ -947,7 +1020,7 @@ class DelrLedgerApp:
                 messagebox.showerror(self.tr("app_title"), self.tr("invalid_item"))
                 return
             try:
-                raw = float(amount_var.get().strip())
+                raw = self.parse_amount_value(amount_var.get())
             except ValueError:
                 messagebox.showerror(self.tr("app_title"), self.tr("invalid_amount"))
                 return
@@ -1293,7 +1366,7 @@ class DelrLedgerApp:
             messagebox.showerror(self.tr("app_title"), self.tr("invalid_date"))
             return
         try:
-            raw = float(self.amount_var.get().strip())
+            raw = self.parse_amount_value(self.amount_var.get())
         except ValueError:
             messagebox.showerror(self.tr("app_title"), self.tr("invalid_amount"))
             return

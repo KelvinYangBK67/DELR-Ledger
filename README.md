@@ -8,7 +8,7 @@ This project was completed with assistance from Codex.
 
 ## Version
 
-Current version: `v0.1.1`
+Current version: `v0.1.2`
 
 ## Highlights
 
@@ -33,6 +33,8 @@ Current version: `v0.1.1`
 - Optional "Do not count" flag for transfers, cash withdrawals, or other rows that should remain visible but not affect totals
 - Per-currency totals (Total / Income / Expense)
 - Table header sorting and filters
+- Pagination controls for first/previous/next/last page plus direct page jump
+- Amount entry accepts decimal comma and thousands separators, matching clipboard import parsing
 
 ## Project Structure
 

@@ -2,6 +2,23 @@
 
 [繁體中文](CHANGELOG_zh.md)
 
+## v0.1.2
+
+This patch improves entry input and page navigation ergonomics.
+
+### Added
+
+- Added first-page, last-page, and direct page-jump controls to paginated ledger views.
+- Added localized page-jump labels for Traditional Chinese, English, and German.
+
+### Changed
+
+- Amount fields in the add and edit forms now use the same parser as clipboard import, accepting decimal commas and thousands separators.
+
+### Maintenance
+
+- Removed duplicated `(1)` workspace copies and stale generated/cache duplicates.
+
 ## v0.1.1
 
 Released as the first patch update after `v0.1.0`. This release focuses on ledger correctness and export/import stability.
